@@ -48,24 +48,18 @@ def process_screenshot_and_ocr():
             merged_txts[-1] += txts[i]
             merged_boxes[-1][2:] = box[2:]
 
+    questionBody = "\n".join(merged_txts)
 
-
-    # 分离问题和答案
-    questions = [t for i, t in enumerate(txts) if boxes[i][0][0] < 50]
-    answers = [t for i, t in enumerate(txts) if boxes[i][0][0] >= 50]
-
-    questionBody = "\n".join(questions + answers)
-
-    client = ZhipuAI(api_key="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")  # 填写APIKey
+    client = ZhipuAI(api_key="xxxxxxxxxxxxxxxxxxxxxxxx")  # 填写APIKey
     response = client.chat.completions.create(
         model="glm-4-air",  # 填写需要调用的模型名称
         messages=[
                 {
-                    "content": "- 你是一个通晓古今的百科全书，拥有丰富的学识和答题经验。现在需要你根据用户输入的问题 <Question> 以及选项 <Option> 选出一个最合适的选项 <Answer>，然后输出选项的内容。\n- 需要注意，你的答案仅能是从选项中选择，不能自由发挥。\n- 题目类型都是选择题，一部分是问题选项，另一部分需要你从选项中选出一个最合适的填补题目的空缺。题目的空缺会用连续的下划线__表示。\n- 你只需要回答你认为正确的选项，不需要做出任何解释。你的答案需要有理论依据，不可以回答虚构的答案。\n",
+                    "content": "- 你是一个通晓古今的百科全书，拥有丰富的学识和答题经验。现在需要你根据用户输入的<Question>问题以及选项选出一个最合适的选项 <Answer>，然后输出选项的内容。\n- 需要注意，你的答案仅能是从选项中选择，不能自由发挥。\n- 题目类型都是选择题，一部分是问题选项，另一部分需要你从选项中选出一个最合适的填补题目的空缺。题目的空缺会用连续的下划线__表示。\n- 你只需要回答你认为正确的选项，不需要做出任何解释。你的答案需要有理论依据，不可以回答虚构的答案。\n",
                     "role": "system"
                 },
                 {
-                    "content": "<Question>最古老的文学体裁是什么？\n<Option>诗歌\n<Option>小说\n<Option>散文\n",
+                    "content": "<Question>最古老的文学体裁是什么？\n诗歌\n小说\n散文\n戏剧",
                     "role": "user"
                 },
                 {
@@ -79,7 +73,7 @@ def process_screenshot_and_ocr():
         ],
     )
     answer = response.choices[0].message.content
-    print(answer)
+
     # 找到匹配的文本框位置
     for i, txt in enumerate(txts):
         if txt == answer:
@@ -89,6 +83,6 @@ def process_screenshot_and_ocr():
             pyautogui.click(window.left + x, window.top + y + 250)
             pyautogui.moveTo(left,top)
 
-for _ in range(100):
+for _ in range(50):
     process_screenshot_and_ocr()
     time.sleep(1)  # 等待
