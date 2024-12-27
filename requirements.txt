@@ -1,0 +1,6 @@
+numpy
+paddlepaddle
+paddleocr==2.9.1
+pyautogui
+pygetwindow
+zhipuai
